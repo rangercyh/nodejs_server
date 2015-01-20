@@ -9,3 +9,6 @@ echo 60 > /proc/sys/net/ipv4/tcp_keepalive_time
 echo 5 > /proc/sys/net/ipv4/tcp_keepalive_intvl
 echo 3 > /proc/sys/net/ipv4/tcp_keepalive_probes
 
+
+
+npm install
