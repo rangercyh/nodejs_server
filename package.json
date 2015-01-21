@@ -13,6 +13,8 @@
     "server"
   ],
   "dependencies": {
-    "mysql": "2.5.4"
+    "mysql": "2.5.4",
+    "ExBuffer": "0.2.4",
+    "protobufjs" : "3.8.2"
   }
 }

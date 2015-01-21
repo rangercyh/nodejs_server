@@ -1,0 +1,9 @@
+package base;
+
+message requestbase {
+	required uint32 id = 1;
+}
+
+message responsebase {
+	required bool result = 1;
+}

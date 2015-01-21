@@ -1,5 +1,8 @@
 var net = require('net');
-var mysql = require('./db').init();
+var ExBuffer = require('ExBuffer');
+var ProtoBuf = require('protobufjs');
+
+var mysql = require('./database/db').init();
 
 var HOST = '10.20.127.197';
 var PORT = 8124;
@@ -7,18 +10,23 @@ var PORT = 8124;
 
 var server = net.createServer(function (socket) {
 	console.log('创建了一个新的socket连接：' + socket.remoteAddress + ' ' + socket.remotePort);
+
+	var exBuffer = new ExBuffer();	// 如何释放，默认是2个字节的len，big endian，所以一个包最长是65535字节
+	exBuffer.on('data', function (buffer) {
+		console.log('>> server receive data, length: ' + buffer.length);
+		console.log(buffer.toString());
+	});
+
 	var hellomsg = {
 		type:1,
 		data:'你好，这里是nodejs服务端'
 	}
 	socket.write(JSON.stringify(hellomsg));
 
-
-
-
-
-
 	socket.on('data', function (data) {
+		exBuffer.put(data);	// 收到数据就往exbuffer里丢
+
+		/*
 		var obj = JSON.parse(data.toString());
 		console.log('收到数据：' + data);
 		console.log(obj['username'] + ' ' + obj['password']);
@@ -42,9 +50,8 @@ var server = net.createServer(function (socket) {
 				socket.write(JSON.stringify({type:2,data:auth}));
 			}
 		});
+	*/
 	});
-
-
 
 	socket.on('end', function () {
 		console.log('客户端发来FIN，转CLOSE_WAIT，等写队列发完了，回发FIN转LAST_ACK');
