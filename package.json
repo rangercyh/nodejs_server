@@ -15,6 +15,7 @@
   "dependencies": {
     "mysql": "2.5.4",
     "ExBuffer": "0.2.4",
-    "protobufjs" : "3.8.2"
+    "protobufjs" : "3.8.2",
+    "bcrypt" : >=0.5.x
   }
 }

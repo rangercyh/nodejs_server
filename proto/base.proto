@@ -1,9 +1,1 @@
-package base;
-
-message requestbase {
-	required uint32 id = 1;
-}
-
-message responsebase {
-	required bool result = 1;
-}
+// proto的设计原则是每条message都把客户端的发送消息和服务端的发送消息都收集起来

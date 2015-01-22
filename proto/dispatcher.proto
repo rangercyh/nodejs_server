@@ -1,5 +1,17 @@
+import "base.proto";
+
 package dispatcher;
 
-message ErrorResp {
-
+message register {
+	required bytes username = 1;
+	required bytes password = 2;
 }
+
+message auth {
+	required bytes username = 1;
+	required bytes password = 2;
+}
+
+
+
+
