@@ -16,9 +16,9 @@ var server = net.createServer(function (socket) {
 		console.log('>> server receive data, length: ' + buffer.length);
 		console.log(buffer.toString());
 
-		var func_id = buffer.toString('base64', 2, 4);
+		var msgid = buffer.toString('base64', 2, 4);
 
-		dispatcher(buffer.toString('base64', 2), socket);
+		dispatcher(buffer.toString('base64', 4), msgid, socket);
 	});
 
 	var hellomsg = {

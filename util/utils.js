@@ -27,3 +27,12 @@ module.exports.md5 = function(str) {
 	str = md5sum.digest('hex');
 	return str;
 };
+
+module.exports.encodeBuffer = function(protoBuffer, msgid) {
+	var buffer = protoBuffer.toArrayBuffer();
+	var newBuffer = new Buffer(4 + buffer.length);
+	newBuffer.write(4 + buffer.length, 0, 2, 'base64');
+	newBuffer.write(msgid, 2, 2, 'base64');
+	newBuffer.fill(buffer, 4);
+	return newBuffer;
+};

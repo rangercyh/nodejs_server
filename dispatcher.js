@@ -28,29 +28,22 @@ mysql.query(sql, [obj['username']], function (err, result, fields) {
 
 
 var ProtoBuf = require('protobufjs');
-
-var mysql = require('database/db').init();
-
+var ProtocolName = require('protoname');
+var ProtoBuilder = require('protobuilder');
 var login = require('login');
 
+
 var dispatchTable = {
-	'register' : login.register,
-	'auth' : login.auth
+	"register" : login.register,
+	"auth" : login.auth
 }
 
-var _build;
-
-function dispatcher(data, socket) {
-	if (!_build) {
-		var builder = ProtoBuf.loadProtoFile('proto/dispatcher.proto');
-		for (i in dispatchTable) {
-			_build[i] = builder.build(i);
-		}
+function dispatcher(data, msgid, socket) {
+	var msgName = ProtocolName[msgid];
+	if (msgName && ProtoBuilder[msgName]) {
+		var msg = ProtoBuilder[msgName].decode(data);
+		dispatchTable[msgName](msg, socket);
 	}
-
-
-	//var auth = builder.build('auth');
-	//var message = auth.decode(data);
 };
 
 module.exports = dispatcher;
