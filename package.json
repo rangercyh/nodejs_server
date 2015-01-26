@@ -16,6 +16,10 @@
     "mysql": "2.5.4",
     "ExBuffer": "0.2.4",
     "protobufjs" : "3.8.2",
-    "bcrypt" : >=0.5.x
+    "bcrypt" : ">=0.5.x"
+  },
+  "devDependencies": {
+    "mocha": "1.2.3",
+    "should": "4.6.1"
   }
 }
