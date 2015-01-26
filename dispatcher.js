@@ -1,10 +1,9 @@
-
-
-
 var ProtoBuf = require('protobufjs');
-var ProtocolName = require('protoname');
-var ProtoBuilder = require('protobuilder');
-var login = require('login');
+
+
+var Proto = require('./proto');
+var login = require('./login');
+var utils = require('./util/utils');
 
 
 var dispatchTable = {
@@ -13,10 +12,19 @@ var dispatchTable = {
 }
 
 function dispatcher(data, msgid, socket) {
-	var msgName = ProtocolName[msgid];
-	if (msgName && ProtoBuilder[msgName]) {
-		var msg = ProtoBuilder[msgName].decode(data);
-		dispatchTable[msgName](msg, socket);
+	var msgName = Proto.getMsgName(msgid);
+	var msgBuilder = Proto.getBuilder(msgName);
+	if (msgName && msgBuilder) {
+		if (dispatchTable[msgName]) {
+			var msg = msgBuilder.decode(data);
+			dispatchTable[msgName](msg, socket);
+			return;
+		}
+	}
+	// 对于不合理的情况一律回一个false
+	var result = utils.createBoolResult(msgid, false);
+	if (result) {
+		socket.write(result);
 	}
 };
 

@@ -1,7 +1,5 @@
-var mysql = require('database/db').init();
-var ProtoBuilder = require('protobuilder');
-var ProtoMap = require('protomap');
-var utils = require('util/utils');
+var mysql = require('./database/db').init();
+var utils = require('./util/utils');
 
 
 
@@ -31,16 +29,12 @@ mysql.query(sql, [obj['username']], function (err, result, fields) {
 	}
 });
 */
-module.exports.register = function(data, socket) {
-	if (data.username && data.password) {
+module.exports.register = function(msg, socket) {
+	if (msg.username && msg.password) {
 		// 检查合法性
-		var data = new ProtoBuilder["result"];
-		data.result = false;
-		var buffer = utils.encodeBuffer(data, ProtoMap.COMMON_RETURN);
-		socket.write(buffer);
 	}
 };
 
-module.exports.auth = function() {
+module.exports.auth = function(msg, socket) {
 
 };

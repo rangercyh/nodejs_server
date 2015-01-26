@@ -1,5 +1,7 @@
 var crypto = require('crypto');
 
+var Proto = require('../proto');
+
 module.exports.invokeCallback = function(cb) {
 	if (!!cb && (typeof cb === 'function')) {
 		cb.apply(null, Array.prototype.slice.call(arguments, 1));
@@ -28,6 +30,11 @@ module.exports.md5 = function(str) {
 	return str;
 };
 
+/*
+protoBuffer : proto对象
+msgid : message的编号
+调用者保证均不为空
+*/
 module.exports.encodeBuffer = function(protoBuffer, msgid) {
 	var buffer = protoBuffer.toArrayBuffer();
 	var newBuffer = new Buffer(4 + buffer.length);
@@ -35,4 +42,20 @@ module.exports.encodeBuffer = function(protoBuffer, msgid) {
 	newBuffer.write(msgid, 2, 2, 'base64');
 	newBuffer.fill(buffer, 4);
 	return newBuffer;
+};
+
+/*
+result : true or false
+*/
+module.exports.createBoolResult = function(requestid, result) {
+	var builder = Proto.getBuilder("boolresult");
+	var data = new builder;
+	data.requestid = requestid;
+	data.result = result;
+	var msgid = Proto.getMsgid("boolresult");
+	if (msgid) {
+		var buffer = module.exports.encodeBuffer(data, msgid);
+		return buffer;
+	}
+	return null;
 };
