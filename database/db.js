@@ -38,11 +38,10 @@ _mysql.shutdown = function () {
 exports.init = function () {
 	if (!!_pool) {
 		return module.exports;
-	} else {
-		_mysql.init();
-		module.exports.query = _mysql.query;
-		return module.exports;
 	}
+	_mysql.init();
+	module.exports.query = _mysql.query;
+	return module.exports;
 };
 
 exports.shutdown = function () {

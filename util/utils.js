@@ -47,15 +47,17 @@ module.exports.encodeBuffer = function(protoBuffer, msgid) {
 /*
 result : true or false
 */
-module.exports.createBoolResult = function(requestid, result) {
+module.exports.createSimpleResult = function(requestid, result) {
 	var builder = Proto.getBuilder("boolresult");
-	var data = new builder;
-	data.requestid = requestid;
-	data.result = result;
-	var msgid = Proto.getMsgid("boolresult");
-	if (msgid) {
-		var buffer = module.exports.encodeBuffer(data, msgid);
-		return buffer;
+	if (builder) {
+		var data = new builder();
+		data.requestid = requestid;
+		data.result = result;
+		var msgid = Proto.getMsgid("boolresult");
+		if (msgid) {
+			return module.exports.encodeBuffer(data, msgid);
+		}
 	}
+
 	return null;
 };

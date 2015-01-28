@@ -1,7 +1,7 @@
 var ProtoBuf = require('protobufjs');
 
 // 定义之前先检查是否有相同的字符串
-_MsgTable = {
+var _MsgTable = {
 	"boolresult" : 1,
 	"register" : 2,
 	"auth" : 3
@@ -17,8 +17,9 @@ module.exports.getMsgid = function(msgname) {
 };
 
 module.exports.getMsgName = function(msgid) {
+	var name;
 	for (name in _MsgTable) {
-		if (_MsgTable[name] == msgid) {
+		if ((_MsgTable.hasOwnProperty(name)) && (_MsgTable[name] === msgid)) {
 			return name;
 		}
 	}
@@ -26,15 +27,16 @@ module.exports.getMsgName = function(msgid) {
 };
 
 module.exports.getBuilder = function(name) {
+	var builderName;
 	if (!_builder) {
 		var builder = ProtoBuf.loadProtoFile('proto/dispatcher.proto');
-		for (name in _MsgTable) {
-			_builder[name] = builder.build(name);
+		for (builderName in _MsgTable) {
+			if (_MsgTable.hasOwnProperty(builderName)) {
+				_builder[builderName] = builder.build(builderName);
+			}
 		}
 	}
 	return _builder[name];
 };
-
-
 
 

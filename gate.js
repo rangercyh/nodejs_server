@@ -34,6 +34,7 @@ server.on('error', function(e) {
 
 客户端无论是发送正常数据还是心跳包，都开启个定时器检查，超时即认为和服务器断开连接，走重连处理
 */
+// 据说这个版本的nodejs的interval不稳定，时间有差池而且会积累，待观察
 setInterval(function() {
 	session.checkHealth();
 }, CHECK_HEALTH_TIME);

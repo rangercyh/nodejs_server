@@ -54,7 +54,7 @@ module.exports.createSession = function(socket) {
 		_state : Const.session_state.SOCKET_STATE_IDLE,
 		_socket : socket,
 		_playerid : 0,
-		_playername : ""，
+		_playername : "",
 		_lasthealth : 0,
 		_connecttime : Date.now()
 	};
@@ -63,7 +63,7 @@ module.exports.createSession = function(socket) {
 };
 
 function checkDuplicates(playerid) {
-	for (id in _sessionHandler) {
+	for (var id in _sessionHandler) {
 		if (_sessionHandler[id]._playerid == id) {
 			module.exports.destroy(id);
 		}
@@ -71,7 +71,7 @@ function checkDuplicates(playerid) {
 }
 
 module.exports.bind = function(sessionid, playerid, playername) {
-	if (getSessionState(sessionid) == Const.session_state.SOCKET_STATE_IDLE) {
+	if (getSessionState(sessionid) === Const.session_state.SOCKET_STATE_IDLE) {
 		// 排重，只需要session排重，后端数据自己会处理重复
 		checkDuplicates(playerid);
 
@@ -100,7 +100,7 @@ module.exports.destroy = function(sessionid) {
 };
 
 module.exports.checkHealth = function() {
-	for (id in _sessionHandler) {
+	for (var id in _sessionHandler) {
 		var curTime = Date.now();
 		if ((curTime - _sessionHandler[id]._lasthealth) > _HealthTime) {
 			// 通知数据模块清掉玩家数据
