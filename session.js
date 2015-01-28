@@ -16,7 +16,7 @@ function listenEvent(_sessionid) {
 		if (socket) {
 			// data use exbuffer
 			var exBuffer = new ExBuffer();	// 2bytes len + 2bytes msgid + data
-			exbuffer.on('data', function(buffer) {
+			exBuffer.on('data', function(buffer) {
 				var msgid = buffer.toString('base64', 2, 4);
 				dispatcher(buffer.toString('base64', 4), msgid, socket);
 			});
@@ -31,7 +31,7 @@ function listenEvent(_sessionid) {
 			});
 
 			socket.on('error', function() {
-				console.error('socket error and close socket: ' + exception);
+				console.error('socket error and close socket');
 			});
 
 			socket.on('close', function() {
@@ -63,15 +63,16 @@ module.exports.createSession = function(socket) {
 };
 
 function checkDuplicates(playerid) {
-	for (var id in _sessionHandler) {
-		if (_sessionHandler[id]._playerid == id) {
+	var id;
+	for (id in _sessionHandler) {
+		if (_sessionHandler.hasOwnProperty(id) && (_sessionHandler[id]._playerid === playerid)) {
 			module.exports.destroy(id);
 		}
 	}
 }
 
 module.exports.bind = function(sessionid, playerid, playername) {
-	if (getSessionState(sessionid) === Const.session_state.SOCKET_STATE_IDLE) {
+	if (module.exports.getSessionState(sessionid) === Const.session_state.SOCKET_STATE_IDLE) {
 		// 排重，只需要session排重，后端数据自己会处理重复
 		checkDuplicates(playerid);
 
@@ -100,9 +101,10 @@ module.exports.destroy = function(sessionid) {
 };
 
 module.exports.checkHealth = function() {
-	for (var id in _sessionHandler) {
-		var curTime = Date.now();
-		if ((curTime - _sessionHandler[id]._lasthealth) > _HealthTime) {
+	var id;
+	var curTime = Date.now();
+	for (id in _sessionHandler) {
+		if (_sessionHandler.hasOwnProperty(id) && ((curTime - _sessionHandler[id]._lasthealth) > _HealthTime)) {
 			// 通知数据模块清掉玩家数据
 			module.exports.destroy(id);
 		}
