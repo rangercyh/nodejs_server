@@ -10,15 +10,15 @@ module.exports.invokeCallback = function(cb) {
 
 // 可逆加解密
 module.exports.encrypt = function(str, secret) {
-	var cipher = crypto.createCipher('aes192', secret);
-	var encode = cipher.update(str, 'utf8', 'hex');
+	var cipher = crypto.createCipher('aes192', secret),
+		encode = cipher.update(str, 'utf8', 'hex');
 	encode += cipher.final('hex');
 	return encode;
 };
 
 module.exports.decrypt = function(str, secret) {
-	var decipher = crypto.createDecipher('aes192', secret);
-	var decode = decipher.update(str, 'hex', 'utf8');
+	var decipher = crypto.createDecipher('aes192', secret),
+		decode = decipher.update(str, 'hex', 'utf8');
 	decode += decipher.final('utf8');
 	return decode;
 };
@@ -36,8 +36,8 @@ msgid : message的编号
 调用者保证均不为空
 */
 module.exports.encodeBuffer = function(protoBuffer, msgid) {
-	var buffer = protoBuffer.toArrayBuffer();
-	var newBuffer = new Buffer(4 + buffer.length);
+	var buffer = protoBuffer.toArrayBuffer(),
+		newBuffer = new Buffer(4 + buffer.length);
 	newBuffer.write(4 + buffer.length, 0, 2, 'base64');
 	newBuffer.write(msgid, 2, 2, 'base64');
 	newBuffer.fill(buffer, 4);
@@ -48,12 +48,14 @@ module.exports.encodeBuffer = function(protoBuffer, msgid) {
 result : true or false
 */
 module.exports.createSimpleResult = function(requestid, result) {
-	var builder = Proto.getBuilder("boolresult");
+	var builder = Proto.getBuilder("boolresult"),
+		data,
+		msgid;
 	if (builder) {
-		var data = new builder();
+		data = new builder();
 		data.requestid = requestid;
 		data.result = result;
-		var msgid = Proto.getMsgid("boolresult");
+		msgid = Proto.getMsgid("boolresult");
 		if (msgid) {
 			return module.exports.encodeBuffer(data, msgid);
 		}

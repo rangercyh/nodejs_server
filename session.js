@@ -12,10 +12,10 @@ var _HealthTime = 3 * 60 * 1000;	// 心跳超时时间
 
 function listenEvent(_sessionid) {
 	if (_sessionHandler[_sessionid]) {
-		var socket = _sessionHandler[_sessionid]._socket;
+		var socket = _sessionHandler[_sessionid]._socket,
+			exBuffer = new ExBuffer();	// 2bytes len + 2bytes msgid + data
 		if (socket) {
 			// data use exbuffer
-			var exBuffer = new ExBuffer();	// 2bytes len + 2bytes msgid + data
 			exBuffer.on('data', function(buffer) {
 				var msgid = buffer.toString('base64', 2, 4);
 				dispatcher(buffer.toString('base64', 4), msgid, socket);
@@ -101,8 +101,8 @@ module.exports.destroy = function(sessionid) {
 };
 
 module.exports.checkHealth = function() {
-	var id;
-	var curTime = Date.now();
+	var id,
+		curTime = Date.now();
 	for (id in _sessionHandler) {
 		if (_sessionHandler.hasOwnProperty(id) && ((curTime - _sessionHandler[id]._lasthealth) > _HealthTime)) {
 			// 通知数据模块清掉玩家数据

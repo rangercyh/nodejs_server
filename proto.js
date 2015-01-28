@@ -27,9 +27,10 @@ module.exports.getMsgName = function(msgid) {
 };
 
 module.exports.getBuilder = function(name) {
-	var builderName;
+	var builderName,
+		builder;
 	if (!_builder) {
-		var builder = ProtoBuf.loadProtoFile('proto/dispatcher.proto');
+		builder = ProtoBuf.loadProtoFile('proto/dispatcher.proto');
 		for (builderName in _MsgTable) {
 			if (_MsgTable.hasOwnProperty(builderName)) {
 				_builder[builderName] = builder.build(builderName);

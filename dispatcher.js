@@ -12,9 +12,9 @@ var dispatchTable = {
 };
 
 function dispatcher(data, msgid, socket) {
-	var msgName = Proto.getMsgName(msgid);
-	var msgBuilder = Proto.getBuilder(msgName);
-	var backMsg = null;
+	var msgName = Proto.getMsgName(msgid),
+		msgBuilder = Proto.getBuilder(msgName),
+		backMsg = null;
 	if (msgName && msgBuilder) {
 		if (dispatchTable[msgName]) {
 			backMsg = dispatchTable[msgName](msgBuilder.decode(data));
@@ -25,8 +25,7 @@ function dispatcher(data, msgid, socket) {
 		socket.write(backMsg);
 	} else {
 		// 对于不合理的情况一律回一个false
-		var result = utils.createSimpleResult(msgid, false);
-		socket.write(result);
+		socket.write(utils.createSimpleResult(msgid, false));
 	}
 }
 
