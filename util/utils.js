@@ -48,11 +48,11 @@ module.exports.encodeBuffer = function(protoBuffer, msgid) {
 result : true or false
 */
 module.exports.createSimpleResult = function(requestid, result) {
-	var builder = Proto.getBuilder("boolresult"),
+	var Builder = Proto.getBuilder("boolresult"),
 		data,
 		msgid;
-	if (builder) {
-		data = new builder();
+	if (typeof Builder === "function") {
+		data = new Builder();
 		data.requestid = requestid;
 		data.result = result;
 		msgid = Proto.getMsgid("boolresult");

@@ -30,8 +30,8 @@ function listenEvent(_sessionid) {
 				_sessionHandler[_sessionid]._state = Const.session_state.SOCKET_STATE_CLIENT_END;
 			});
 
-			socket.on('error', function() {
-				console.error('socket error and close socket');
+			socket.on('error', function(e) {
+				console.error('socket error and close socket: ' + e);
 			});
 
 			socket.on('close', function() {
