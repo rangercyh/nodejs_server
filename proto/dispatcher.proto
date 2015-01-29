@@ -17,6 +17,9 @@ message auth {
 	required bytes password = 2;
 }
 
+message reconnect {
+	required bytes username = 1;
+}
 
 
 

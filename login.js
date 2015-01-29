@@ -1,6 +1,6 @@
 var mysql = require('./database/db').init();
 var utils = require('./util/utils');
-
+var session = require('./session');
 
 
 
@@ -29,12 +29,25 @@ var utils = require('./util/utils');
 // 	}
 // });
 
-module.exports.register = function(msg) {
-	if (msg.username && msg.password) {
+
+module.exports.register = function(sessionid, msg, msgid) {
+	if (msg.hasOwnProperty('username') && msg.hasOwnProperty('password')) {
 		// 检查合法性
 	}
+
 };
 
-module.exports.auth = function(msg) {
+module.exports.auth = function(sessionid, msg, msgid) {
+	// 参数合法性检查
+};
 
+module.exports.reconnect = function(sessionid, msg, msgid) {
+	var result = false,
+		backMsg;
+	if (msg.hasOwnProperty("username")) {
+		// 参数合法性检查
+		result = session.reConnect(sessionid, msg.username);
+	}
+	backMsg = utils.createSimpleResult(msgid, result);
+	session.send(backMsg);
 };

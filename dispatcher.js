@@ -8,24 +8,17 @@ var utils = require('./util/utils');
 
 var dispatchTable = {
 	"register" : login.register,
-	"auth" : login.auth
+	"auth" : login.auth,
+	"reconnect" : login.reconnect
 };
 
-function dispatcher(data, msgid, socket) {
+function dispatcher(data, msgid, _sessionid) {
 	var msgName = Proto.getMsgName(msgid),
-		msgBuilder = Proto.getBuilder(msgName),
-		backMsg = null;
+		msgBuilder = Proto.getBuilder(msgName);
 	if (msgName && msgBuilder) {
 		if (dispatchTable[msgName]) {
-			backMsg = dispatchTable[msgName](msgBuilder.decode(data));
+			dispatchTable[msgName](_sessionid, msgBuilder.decode(data), msgid);
 		}
-	}
-
-	if (backMsg) {
-		socket.write(backMsg);
-	} else {
-		// 对于不合理的情况一律回一个false
-		socket.write(utils.createSimpleResult(msgid, false));
 	}
 }
 

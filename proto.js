@@ -4,7 +4,8 @@ var ProtoBuf = require('protobufjs');
 var _MsgTable = {
 	"boolresult" : 1,
 	"register" : 2,
-	"auth" : 3
+	"auth" : 3,
+	"reconnect" : 4
 };
 
 var _builder = null;

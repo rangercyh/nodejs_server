@@ -9,7 +9,8 @@ var _sessionid = 1;	// 逐渐递增，之后思考一种sessionid维护规则，
 var _HealthTime = 3 * 60 * 1000;	// 心跳超时时间
 
 
-
+// session的清除有两处，一处是服务器开启的定时器任务，每隔一个CHECK_HEALTH_TIME进行一次清除
+// 还有一处是客户端主动断开连接，触发close事件就主动清除
 function listenEvent(_sessionid) {
 	if (_sessionHandler[_sessionid]) {
 		var socket = _sessionHandler[_sessionid]._socket,
@@ -18,7 +19,7 @@ function listenEvent(_sessionid) {
 			// data use exbuffer
 			exBuffer.on('data', function(buffer) {
 				var msgid = buffer.toString('base64', 2, 4);
-				dispatcher(buffer.toString('base64', 4), msgid, socket);
+				dispatcher(buffer.toString('base64', 4), msgid, _sessionid);
 			});
 			socket.on('data', function(data) {
 				exBuffer.put(data);
@@ -27,7 +28,7 @@ function listenEvent(_sessionid) {
 
 			socket.on('end', function() {
 				console.log('客户端发来了FIN');
-				_sessionHandler[_sessionid]._state = Const.session_state.SOCKET_STATE_CLIENT_END;
+				_sessionHandler[_sessionid]._state = Const.session_state.SESSION_STATE_CLIENT_END;
 			});
 
 			socket.on('error', function(e) {
@@ -51,8 +52,9 @@ module.exports.createSession = function(socket) {
 		delete _sessionHandler[_sessionid];
 	}
 	_sessionHandler[_sessionid] = {
-		_state : Const.session_state.SOCKET_STATE_IDLE,
+		_state : Const.session_state.SESSION_STATE_IDLE,
 		_socket : socket,
+		_username : "",
 		_playerid : 0,
 		_playername : "",
 		_lasthealth : 0,
@@ -62,24 +64,29 @@ module.exports.createSession = function(socket) {
 	listenEvent(_sessionid);
 };
 
-function checkDuplicates(playerid) {
+// 把username重复的标记上需要清除
+function markDuplicates(username) {
 	var id;
 	for (id in _sessionHandler) {
-		if (_sessionHandler.hasOwnProperty(id) && (_sessionHandler[id]._playerid === playerid)) {
-			module.exports.destroy(id);
+		if (_sessionHandler.hasOwnProperty(id) &&
+			(_sessionHandler[id]._username === username)) {
+			_sessionHandler[id]._state = Const.session_state.SESSION_CLEAR;
 		}
 	}
 }
 
-module.exports.bind = function(sessionid, playerid, playername) {
-	if (module.exports.getSessionState(sessionid) === Const.session_state.SOCKET_STATE_IDLE) {
-		// 排重，只需要session排重，后端数据自己会处理重复
-		checkDuplicates(playerid);
+module.exports.bind = function(sessionid, username, playerid, playername) {
+	if (module.exports.getSessionState(sessionid) === Const.session_state.SESSION_STATE_IDLE) {
+		markDuplicates(username);
 
+		_sessionHandler[sessionid]._username = username;
 		_sessionHandler[sessionid]._playerid = playerid;
 		_sessionHandler[sessionid]._playername = playername;
-		_sessionHandler[sessionid]._state = Const.session_state.SOCKET_STATE_LOGIN;
+		_sessionHandler[sessionid]._state = Const.session_state.SESSION_STATE_LOGIN;
+
+		return true;
 	}
+	return false;
 };
 
 module.exports.getSessionState = function(sessionid) {
@@ -93,20 +100,49 @@ module.exports.getSession = function(sessionid) {
 	return _sessionHandler[sessionid];
 };
 
-module.exports.destroy = function(sessionid) {
+function destroy(sessionid) {
 	if (_sessionHandler[sessionid]._socket) {
 		_sessionHandler[sessionid]._socket.destroy();
 	}
+
+	// 通知数据模块清除该sessionid绑定的数据块
+	// clearuserdata();
+
 	delete _sessionHandler[sessionid];
-};
+}
 
 module.exports.checkHealth = function() {
 	var id,
 		curTime = Date.now();
 	for (id in _sessionHandler) {
-		if (_sessionHandler.hasOwnProperty(id) && ((curTime - _sessionHandler[id]._lasthealth) > _HealthTime)) {
-			// 通知数据模块清掉玩家数据
-			module.exports.destroy(id);
+		if (_sessionHandler.hasOwnProperty(id)) {
+			if ((_sessionHandler[id]._state === Const.session_state.SESSION_CLEAR) ||
+				((curTime - _sessionHandler[id]._lasthealth) > _HealthTime)) {
+				destroy(id);
+			}
 		}
 	}
+};
+
+module.exports.send = function(id, msg) {
+	if (_sessionHandler.hasOwnProperty(id) &&
+		(_sessionHandler[id].hasOwnProperty('socket')) &&
+		(_sessionHandler[id]._state !== Const.session_state.SESSION_CLEAR)) {
+		_sessionHandler[id].socket.write(msg);
+	}
+};
+
+// 检查session是否存在，如果存在数据就弄过来，通知数据模块sessionid变化
+module.exports.reConnect = function(newID, username) {
+	var id;
+	if (_sessionHandler.hasOwnProperty(newID)) {
+		for (id in _sessionHandler) {
+			if (_sessionHandler.hasOwnProperty(id) &&
+				(_sessionHandler[id]._username === username)) {
+				// changesessionid(id, newID); 没有找到就重新生成,在这个函数里触发bind重新绑定
+				return true;
+			}
+		}
+	}
+	return false;
 };
