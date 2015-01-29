@@ -8,7 +8,7 @@ var _MsgTable = {
 	"reconnect" : 4
 };
 
-var _builder = null;
+var _builder;
 
 module.exports.getMsgid = function(msgname) {
 	if (_MsgTable[msgname]) {
@@ -29,16 +29,25 @@ module.exports.getMsgName = function(msgid) {
 
 module.exports.getBuilder = function(name) {
 	var builderName,
-		builder;
+		builder,
+		allBuilder;
 	if (!_builder) {
+		_builder = {};
 		builder = ProtoBuf.loadProtoFile('proto/dispatcher.proto');
-		for (builderName in _MsgTable) {
-			if (_MsgTable.hasOwnProperty(builderName)) {
-				_builder[builderName] = builder.build(builderName);
+		if (builder) {
+			allBuilder = builder.build("dispatcher");
+			console.log(allBuilder);
+			for (builderName in _MsgTable) {
+				if (_MsgTable.hasOwnProperty(builderName)) {
+					_builder[builderName] = allBuilder[builderName];
+				}
 			}
 		}
 	}
-	return _builder[name];
+	if (_builder.hasOwnProperty(name)) {
+		return _builder[name];
+	}
+	return null;
 };
 
 

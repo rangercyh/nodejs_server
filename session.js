@@ -8,6 +8,20 @@ var _sessionHandler = {};
 var _sessionid = 1;	// 逐渐递增，之后思考一种sessionid维护规则，可以回收淘汰的id
 var _HealthTime = 3 * 60 * 1000;	// 心跳超时时间
 
+// var _HealthTime = 3 * 1000;
+
+
+
+function destroy(sessionid) {
+	if (_sessionHandler.hasOwnProperty(sessionid) && _sessionHandler[sessionid].hasOwnProperty("_socket")) {
+		_sessionHandler[sessionid]._socket.destroy();
+	}
+
+	// 通知数据模块清除该sessionid绑定的数据块
+	// clearuserdata();
+
+	delete _sessionHandler[sessionid];
+}
 
 // session的清除有两处，一处是服务器开启的定时器任务，每隔一个CHECK_HEALTH_TIME进行一次清除
 // 还有一处是客户端主动断开连接，触发close事件就主动清除
@@ -36,7 +50,7 @@ function listenEvent(_sessionid) {
 			});
 
 			socket.on('close', function() {
-				module.exports.destroy(_sessionid);
+				destroy(_sessionid);
 			});
 
 			//socket.setKeepAlive(true);	// 不使用linux的keepalive，用心跳包代替
@@ -100,24 +114,15 @@ module.exports.getSession = function(sessionid) {
 	return _sessionHandler[sessionid];
 };
 
-function destroy(sessionid) {
-	if (_sessionHandler[sessionid]._socket) {
-		_sessionHandler[sessionid]._socket.destroy();
-	}
-
-	// 通知数据模块清除该sessionid绑定的数据块
-	// clearuserdata();
-
-	delete _sessionHandler[sessionid];
-}
-
 module.exports.checkHealth = function() {
 	var id,
 		curTime = Date.now();
 	for (id in _sessionHandler) {
 		if (_sessionHandler.hasOwnProperty(id)) {
+			console.log('socket' + (curTime - _sessionHandler[id]._lasthealth));
 			if ((_sessionHandler[id]._state === Const.session_state.SESSION_CLEAR) ||
 				((curTime - _sessionHandler[id]._lasthealth) > _HealthTime)) {
+				console.log('清掉了socket' + (curTime - _sessionHandler[id]._lasthealth));
 				destroy(id);
 			}
 		}
