@@ -3,9 +3,7 @@ var ProtoBuf = require('protobufjs');
 // 定义之前先检查是否有相同的字符串
 var _MsgTable = {
 	"boolresult" : 1,
-	"register" : 2,
-	"auth" : 3,
-	"reconnect" : 4
+	"login" : 2,
 };
 
 var _builder;

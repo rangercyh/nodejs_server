@@ -1,13 +1,12 @@
 
 var net = require('net');
 
-var session = require('./session');
+var session = require('./module/session');
 
 var HOST = '10.20.127.197';
 var PORT = 8124;
-//var TIMEOUT = 10000;
+
 var CHECK_HEALTH_TIME = 5 * 60 * 1000;	// 检查心跳时间
-// var CHECK_HEALTH_TIME = 10 * 1000
 
 var server = net.createServer(function(socket) {
 	console.log('创建了一个新的socket连接：' + socket.remoteAddress + ' ' + socket.remotePort);

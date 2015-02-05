@@ -1,0 +1,18 @@
+#!/usr/bin/env node
+
+var program = require('commander');
+
+var gate = require('./gate');
+
+var HOST = '10.20.127.197';
+
+
+program
+	.version('0.0.1')
+	.command('start', 'start the server in default mode!')
+	.parse(process.argv);
+
+if (!program.args.length) {
+	program.help();
+}
+

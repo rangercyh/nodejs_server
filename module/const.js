@@ -1,0 +1,7 @@
+module.exports = {
+	SESSION_STATE : {
+		SESSION_NEED_CLEAR : 0,
+		SESSION_STATE_READY : 1,
+		SESSION_STATE_CLIENT_END : 2
+	}
+};

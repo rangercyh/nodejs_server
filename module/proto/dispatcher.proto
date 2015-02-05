@@ -1,0 +1,16 @@
+import "base.proto";
+
+package dispatcher;
+
+message boolresult {
+	required bool result = 1;
+	required int32 requestid = 2;
+}
+
+message login {
+	required bytes username = 1;
+}
+
+
+
+
