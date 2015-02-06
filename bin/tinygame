@@ -1,18 +1,24 @@
 #!/usr/bin/env node
 
 var program = require('commander');
+var path = require('path');
 
+var version = require('../package.json').version;
 var gate = require('./gate');
 
 var HOST = '10.20.127.197';
 
 
-program
-	.version('0.0.1')
-	.command('start', 'start the server in default mode!')
-	.parse(process.argv);
 
-if (!program.args.length) {
-	program.help();
+program.version(version);
+
+program.command('start')
+	.description('start the server as default!')
+	.option('-d, --daemon', 'daemon start')
+	.action(function(opts) {
+		start(opts);
+	});
+
+function start(opts) {
+
 }
-

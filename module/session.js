@@ -1,7 +1,7 @@
 // session管理
 /*
 设计原则是尽量把session模块独立化出来
-使得任何需要session相关功能的模块都可以引用session然后自己管理，比如gate、conn
+使得任何需要session相关功能的模块都可以引用session然后自己管理
 抛出消息：destroy、data
 */
 var State = require('./const').SESSION_STATE;
@@ -83,11 +83,11 @@ function listenEvent(sessionid) {
 	if (this._sessionHandler[sessionid]) {
 		var session = this._sessionHandler[sessionid],
 			socket = this._sessionHandler[sessionid]._socket,
-			exBuffer = new ExBuffer();	// 2bytes len + (2bytes msgid + data)
+			exBuffer = new ExBuffer();	// 2bytes len + [2bytes msgid(base64) + data(protobuf)](bcrypt)
 		if (socket) {
 			// data use exbuffer
 			exBuffer.on('data', function(buffer) {
-				this.emit('data', buffer);	// 抛出数据交给外界处理
+				this.emit('data', buffer);	// 已经切除了包长度，这里应该先解密
 			});
 			socket.on('data', function(data) {
 				exBuffer.put(data);
@@ -117,6 +117,9 @@ Session.prototype.createSession = function(socket) {
 	this._sessionid = this._sessionid + 1;
 	// sessionid重复
 	if (this._sessionHandler[this._sessionid]) {
+		// 由于无法创建正确的session，则拒绝客户端连接
+		console.log('无法创建正确的session id，拒绝客户端连接');
+		socket.destroy();
 		return 0;
 	}
 	this._sessionHandler[this._sessionid] = {
@@ -126,7 +129,7 @@ Session.prototype.createSession = function(socket) {
 	};
 
 	listenEvent.call(this, this._sessionid);
-
+	console.log('创建了一个新的socket连接：' + socket.remoteAddress + ' ' + socket.remotePort + ' ' + this._sessionid);
 	return this._sessionid;
 };
 
@@ -138,11 +141,19 @@ Session.prototype.getSessionState = function(sessionid) {
 };
 
 Session.prototype.send = function(sessionid, msg) {
-	var session;
+	var session,
+		len,
+		data;
 	if (this._sessionHandler.hasOwnProperty(sessionid)) {
 		session = this._sessionHandler[sessionid];
 		if (session.hasOwnProperty('_socket') && (session._state === State.SESSION_STATE_READY)) {
-			session._socket.write(msg);
+			// 计算长度，加密
+			// bcript
+			len = Buffer.byteLength(msg);
+			data = new Buffer(2 + len);
+			data.fill(len, 0, 2);
+			data.fill(msg, 2);
+			session._socket.write(data);
 		}
 	}
 };

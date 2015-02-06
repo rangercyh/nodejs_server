@@ -1,49 +1,51 @@
+var Tcp = require('../module/connect').Tcp;
+var Zmq = require('../module/connect').Zmq;
+var EventEmitter = require('events').EventEmitter;
+var util = require('util');
 
-var net = require('net');
 
-var Session = require('../module/session');
+function listenEvents() {
+	this.ClientTcp.on('error', function(e) {
+		console.error('error:' + e);
+	});
+
+	this.ClientTcp.on('connection', function(sessionid) {
+		this.g_Handler
+	});
+
+	this.ClientTcp.on('data', function(msgid, protoData) {
+
+	});
 
 
-module.exports = function(HOST, PORT) {
-	var g_Session = new Session(),
-	/*
-	[sessionid] : {
-		uuid:
-		connectTime:
-	}
-	*/
-		g_Handler = {},
-		server = net.createServer();
+	this.ConnZmq.on('error', function(e) {
+		console.error('error:' + e);
+	});
 
-	server.on('connection', function(socket) {
-		console.log('创建了一个新的socket连接：' + socket.remoteAddress + ' ' + socket.remotePort);
-		var id = g_Session.createSession(socket);
-		if (id !== 0) {
-			g_Handler[id] = {
-				connectTime : Date.now(),
-			};
+	this.ConnZmq.on('msg', function(msg) {
+
+	});
+}
+
+var gate = function(host, port) {
+	this.g_Handler = {};
+		/*
+		[sessionid] : {
+			uuid:
+			connectTime:
 		}
-	});
+		*/
+	this.ClientTcp = new Tcp(host, port);
+	this.ConnZmq = new Zmq('bind', 'req', 'tcp://10.20.127.197:3000');
 
-	server.on('listening', function() {
-		console.log('服务器开始监听了：' + server.address().port);
-	});
+	EventEmitter.call(this);
 
-	server.on('error', function(e) {
-		console.error('监听到一个错误：' + e);
-	});
-
-	// 处理session消息
-	g_Session.on('destroy', function(sessionid) {
-		console.log('一个client走了：' + sessionid);
-	});
-
-	// gate模块只处理一种协议：login
-	g_Session.on('data', function(msg) {
-
-	});
-
-	server.listen(PORT, HOST);
+	listenEvents.call(this);
 };
+
+util.inherits(gate, EventEmitter);
+
+module.exports = gate;
+
 
 
