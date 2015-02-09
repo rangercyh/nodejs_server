@@ -87,7 +87,7 @@ function listenEvent(sessionid) {
 		if (socket) {
 			// data use exbuffer
 			exBuffer.on('data', function(buffer) {
-				this.emit('data', buffer);	// 已经切除了包长度，这里应该先解密
+				this.emit('data', sessionid, buffer);	// 已经切除了包长度，这里应该先解密
 			});
 			socket.on('data', function(data) {
 				exBuffer.put(data);
@@ -130,6 +130,10 @@ Session.prototype.createSession = function(socket) {
 
 	listenEvent.call(this, this._sessionid);
 	console.log('创建了一个新的socket连接：' + socket.remoteAddress + ' ' + socket.remotePort + ' ' + this._sessionid);
+	return this._sessionid;
+};
+
+Session.prototype.getSessionID = function() {
 	return this._sessionid;
 };
 

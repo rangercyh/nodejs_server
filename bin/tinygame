@@ -8,6 +8,52 @@ var version = require('../package.json').version;
 
 var HOST = '10.20.127.197';
 
+function start(opts) {
+	var gate = spawn('node', ['server/gate.js'], { stdio : 'inherit' });
+	//gate.unref();
+	gate.on('error', function(e) {
+		console.log(e);
+	});
+
+	var conn = spawn('node', ['server/conn.js'], { stdio : 'inherit' });
+	//conn.unref();
+	conn.on('error', function(e) {
+		console.log(e);
+	});
+
+	var loc = spawn('node', ['server/loc.js'], { stdio : 'inherit' });
+	//loc.unref();
+	loc.on('error', function(e) {
+		console.log(e);
+	});
+
+	var chat = spawn('node', ['server/chat.js'], { stdio : 'inherit' });
+	//chat.unref();
+	chat.on('error', function(e) {
+		console.log(e);
+	});
+
+	var mail = spawn('node', ['server/mail.js'], { stdio : 'inherit' });
+	//mail.unref();
+	mail.on('error', function(e) {
+		console.log(e);
+	});
+
+	var db = spawn('node', ['server/db.js'], { stdio : 'inherit' });
+	//db.unref();
+	db.on('error', function(e) {
+		console.log(e);
+	});
+
+	var router_dealer = spawn('node', ['server/router_dealer.js'], { stdio : 'inherit' });
+	//router_dealer.unref();
+	router_dealer.on('error', function(e) {
+		console.log(e);
+	});
+
+	console.log('asd');
+	//process.exit(0);
+}
 
 
 program.version(version);
@@ -19,8 +65,4 @@ program.command('start')
 		start(opts);
 	});
 
-function start(opts) {
-
-
-	process.exit(0);
-}
+program.parse(process.argv);

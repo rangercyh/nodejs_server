@@ -1,4 +1,4 @@
-var utils = require('../util/utils');
+var utils = require('./utils');
 
 var _pool;
 

@@ -1,6 +1,6 @@
 var crypto = require('crypto');
 
-var Proto = require('../proto');
+var Proto = require('./proto');
 
 module.exports.invokeCallback = function(cb) {
 	if (!!cb && (typeof cb === 'function')) {

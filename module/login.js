@@ -1,5 +1,5 @@
 var mysql = require('./database/db').init();
-var utils = require('./util/utils');
+var utils = require('./utils');
 var session = require('./session');
 
 

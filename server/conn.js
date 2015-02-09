@@ -1,43 +1,95 @@
 
-var net = require('net');
+var Tcp = require('../module/tcp');
+var Zmq = require('../module/zmq');
+var State = require('../module/const').CONN_PLAYER_STATE;
 
-var session = require('./module/session');
 
-var HOST = '10.20.127.197';
-var PORT = 8124;
-
-var CHECK_HEALTH_TIME = 5 * 60 * 1000;	// 检查心跳时间
-
-var server = net.createServer(function(socket) {
-	console.log('创建了一个新的socket连接：' + socket.remoteAddress + ' ' + socket.remotePort);
-	session.createSession(socket);
-});
-
-server.listen(PORT, HOST);
-
-server.on('listening', function() {
-	console.log('服务器开始监听了：' + server.address().port);
-});
-
-server.on('error', function(e) {
-	console.error('监听到一个错误：' + e);
-});
-
-/* 服务端心跳包维护
-心跳包由客户端发送，客户端有两种实现选择，可以直接每隔1min发送一个，
-也可以距离上一次正常数据发送后1min才开始发。两种实现对服务端都一样。
-
-服务端在收到心跳包或者正常数据时，都去更新socket列表的lastdata时间戳，
-这个时间使用服务器上的时间，因为不信任客户端的时间，然后服务器上设置定时器，
-每隔5min（时间可调）检查一下所有的socket列表lastdata，如果发现lastdata距离当前时间超过3min（时间可调），
-则认为客户端断线了。同时服务器对客户端的每条协议包括心跳包都需要立刻回复。
-
-客户端无论是发送正常数据还是心跳包，都开启个定时器检查，超时即认为和服务器断开连接，走重连处理
+var g_Player = {};
+/*
+[sessionid] : {
+	uuid:
+	loginTime:
+	playerid:
+	state:
+}
 */
-// 据说这个版本的nodejs的interval不稳定，时间有差池而且会积累，待观察
-setInterval(function() {
-	session.checkHealth();
-}, CHECK_HEALTH_TIME);
+
+var GateConnRep = new Zmq('connect', 'rep', 'tcp://10.20.127.197:3001');
+GateConnRep.on('error', function(e) {
+	console.error('error:' + e);
+});
+GateConnRep.on('msg', function(msg) {
+
+});
+
+var ConnLocReq = new Zmq('connect', 'req', 'tcp://10.20.127.197:3002');
+ConnLocReq.on('error', function(e) {
+	console.error('error:' + e);
+});
+ConnLocReq.on('msg', function(msg) {
+
+});
+
+var ConnChatReq = new Zmq('connect', 'req', 'tcp://10.20.127.197:3004');
+ConnChatReq.on('error', function(e) {
+	console.error('error:' + e);
+});
+ConnChatReq.on('msg', function(msg) {
+
+});
+
+var ConnMailReq = new Zmq('connect', 'req', 'tcp://10.20.127.197:3006');
+ConnMailReq.on('error', function(e) {
+	console.error('error:' + e);
+});
+ConnMailReq.on('msg', function(msg) {
+
+});
+
+var ConnChatRep = new Zmq('connect', 'rep', 'tcp://10.20.127.197:3014');
+ConnChatRep.on('error', function(e) {
+	console.error('error:' + e);
+});
+ConnChatRep.on('msg', function(msg) {
+
+});
+
+var ConnMailRep = new Zmq('connect', 'rep', 'tcp://10.20.127.197:3016');
+ConnMailRep.on('error', function(e) {
+	console.error('error:' + e);
+});
+ConnMailRep.on('msg', function(msg) {
+
+});
+
+
+var ClientTcp = new Tcp("10.20.127.197", 5000);
+ClientTcp.on('error', function(e) {
+	console.error('error:' + e);
+});
+ClientTcp.on('connection', function(sessionid) {
+	if (g_Player.hasOwnProperty(sessionid)) {
+		// 处理session冲突
+		// 把原player数据清除
+	}
+	g_Player[sessionid] = {
+		uuid : '',
+		loginTime : 0,
+		playerid : 0,
+		state : State.IDLE
+	};
+});
+ClientTcp.on('destroy', function(sessionid) {
+	if (g_Handler.hasOwnProperty(sessionid)) {
+		// 处理player信息
+		delete g_Handler[sessionid];
+	}
+});
+ClientTcp.on('data', function(id, msgid, protoData) {
+	if (g_Handler.hasOwnProperty(id)) {
+		// 分发消息
+	}
+});
 
 
 

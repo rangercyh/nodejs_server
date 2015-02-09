@@ -1,5 +1,5 @@
 var should = require('should');
-var utils = require('../util/utils');
+var utils = require('../module/utils');
 
 describe('utils test', function() {
 

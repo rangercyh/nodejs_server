@@ -3,16 +3,14 @@
 目前连接主要有两类，一类是和客户端的连接，另一类是后端服务器间的连接
 客户端的连接可以使用原生tcp或者zmq，后端服务器连接使用zmq（都是推荐）
 消息msgid和数据的组装和拆分在这里做
-TCP抛出消息：connection、error、data
+TCP抛出消息：connection、error、data、destroy
 ZMQ抛出消息：error、msg
 */
 var net = require('net');
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
-var zmq = require('zmq');
 
 var Session = require('./session');
-
 
 var _Tcp = function(ip, port) {
 	this.session = new Session();
@@ -37,37 +35,23 @@ var _Tcp = function(ip, port) {
 	server.listen(port, ip);
 
 	this.session.on('destroy', function(sessionid) {
-		console.log('一个client走了：' + sessionid);
+		//console.log('一个client走了：' + sessionid);
+		this.emit('destroy', sessionid);
 	});
 
-	this.session.on('data', function(msg) {
+	this.session.on('data', function(id, msg) {
 		// 切开msgid和data，这里的数据应该已经由session模块解密了
-		this.emit('data', msg.toString('base64', 0, 2), msg.slice(2));
-	});
-
-	EventEmitter.call(this);
-};
-
-var _Zmq = function(type, zmqType, address) {
-	var connect = zmq.socket(zmqType);
-	if (type === 'bind') {
-		connect.bindSync(address);
-	} else {
-		connect.connect(address);
-	}
-	connect.on('message', function(msg) {
-		this.emit('msg', msg);
+		this.emit('data', id, msg.toString('base64', 0, 2), msg.slice(2));
 	});
 
 	EventEmitter.call(this);
 };
 
 util.inherits(_Tcp, EventEmitter);
-util.inherits(_Zmq, EventEmitter);
 
-module.exports.Tcp = _Tcp;
-module.exports.Zmq = _Zmq;
+module.exports = _Tcp;
 
+// 用于游戏逻辑主动踢客户端下线
 _Tcp.prototype.closeClient = function(id) {
 	this.session.close(id);
 };
@@ -79,4 +63,3 @@ _Tcp.prototype.send = function(id, msg, msgid) {
 	data.fill(msg, 2);
 	this.session.send(id, data);
 };
-
