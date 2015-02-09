@@ -2,9 +2,9 @@
 
 var program = require('commander');
 var path = require('path');
+var spawn = require('child_process').spawn;
 
 var version = require('../package.json').version;
-var gate = require('./gate');
 
 var HOST = '10.20.127.197';
 
@@ -14,11 +14,13 @@ program.version(version);
 
 program.command('start')
 	.description('start the server as default!')
-	.option('-d, --daemon', 'daemon start')
+	//.option('-d, --daemon', 'daemon start')
 	.action(function(opts) {
 		start(opts);
 	});
 
 function start(opts) {
 
+
+	process.exit(0);
 }

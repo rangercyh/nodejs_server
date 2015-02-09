@@ -1,5 +1,6 @@
 var zmq = require('zmq');
 
+// Req-Rep对应Router-Dealer
 var config = [
 	[3000, 3001],	// gate-conn
 	[3002, 3003],	// conn-loc
