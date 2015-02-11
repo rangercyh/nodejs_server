@@ -13,15 +13,28 @@ CREATE TABLE IF NOT EXISTS `userinfo` (
 # Dump of table Player
 # ------------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS `Player` (
+CREATE TABLE IF NOT EXISTS `player` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `userId` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `uuid` varchar(32) unsigned NOT NULL DEFAULT '',
   `name` varchar(50) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   UNIQUE KEY `INDEX_GAME_NAME` (`name`),
   KEY `INDEX_PALYER_USER_ID` (`userId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+
+# Dump of table Team
+# ------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `teaminfo` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `type` varchar(20) COLLATE utf8_unicode_ci NOT NULL DEFAULT '0',
+  `playerId` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `items` varchar(5000) COLLATE utf8_unicode_ci NOT NULL DEFAULT '{}',
+  `itemCount` smallint(6) unsigned NOT NULL DEFAULT '20',
+  PRIMARY KEY (`id`),
+  KEY `INDEX_PLAYER_ID` (`playerId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 # Dump of table NormalBag
 # ------------------------------------------------------------
